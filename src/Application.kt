@@ -21,7 +21,7 @@ data class Kasa(
     val isim: String
 )
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+//fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
@@ -91,14 +91,16 @@ fun Application.main(testing: Boolean = false) {
                 }
             }
     """.trimIndent()
-    val variables = """
-        {
-            "_id": 3
-        }
-    """.trimIndent()
+
 
     routing {
-        get("/") {
+        get("/{id?}") {
+            val id = call.parameters["id"]
+            val variables = """
+                {
+                    "_id": $id
+                }
+            """.trimIndent()
             call.respondText(schema.execute(query, variables))
         }
     }
