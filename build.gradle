@@ -34,5 +34,6 @@ dependencies {
     compile "com.apurebase:kgraphql:$kgraphql_version"
     compile "org.jetbrains.exposed:exposed:$exposed_version"
     compile "org.postgresql:postgresql:$postgresql_version"
+    compile "com.zaxxer:HikariCP:$hikaricp_version"
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
 }
