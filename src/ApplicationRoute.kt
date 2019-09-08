@@ -16,7 +16,7 @@ data class GraphQLRequest(
     val variables: Map<String, Any>? = emptyMap()
 )
 
-@Suppress("unused") // Referenced in application.conf
+@Suppress("UNUSED") // Referenced in application.conf
 fun Application.route() {
     routing {
         get("/hello") {
@@ -25,9 +25,6 @@ fun Application.route() {
 
         post("/graphql") {
             val req = call.receive<GraphQLRequest>()
-
-            println(req)
-
             val query = req.query
             val variables = if (req.variables == null) null
             else jacksonObjectMapper().writeValueAsString(req.variables)

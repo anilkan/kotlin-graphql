@@ -10,6 +10,7 @@ object Safes : Table() {
     val id: Column<Int> = integer("id").autoIncrement().primaryKey()
     val code: Column<String> = varchar("code", 24)
     val name: Column<String> = varchar("name", 255)
+    val balance: Column<Double> = double("balance").default(0.0)
 }
 
 object SafeRepository : Repository<Safe> {
@@ -17,7 +18,14 @@ object SafeRepository : Repository<Safe> {
         transactionEnviroment {
             Safes
                 .select { Safes.id eq indexer }
-                .map { x -> Safe(x[Safes.id].toInt(), x[Safes.code].toString(), x[Safes.name].toString()) }
+                .map { x ->
+                    Safe(
+                        x[Safes.id].toInt(),
+                        x[Safes.code].toString(),
+                        x[Safes.name].toString(),
+                        x[Safes.balance].toDouble()
+                    )
+                }
                 .first()
         }
 }
