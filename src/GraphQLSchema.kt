@@ -20,8 +20,11 @@ val schema = KGraphQL.schema {
     }
 
     query("safe") {
-        resolver { id: Int ->
-            SafeRepository.getElement(id)
+        resolver { id: Int? ->
+            when (id) {
+                null -> throw NotImplementedError()
+                else -> SafeRepository.getElement(id)
+            }
         }
     }
 
