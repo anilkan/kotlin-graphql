@@ -3,6 +3,7 @@ package xyz.anilkan.kotlin
 import com.apurebase.kgraphql.KGraphQL
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.joda.time.DateTime
+import xyz.anilkan.kotlin.repository.FinancialMovementItemRepository
 import xyz.anilkan.kotlin.repository.FinancialMovementRepository
 import xyz.anilkan.kotlin.repository.FirmRepository
 import xyz.anilkan.kotlin.repository.SafeRepository
@@ -33,6 +34,12 @@ val schema = KGraphQL.schema {
     query("fmovement") {
         resolver { id: Int ->
             FinancialMovementRepository.getElement(id)
+        }
+    }
+
+    query("fmovementitem") {
+        resolver { id: Int ->
+            FinancialMovementItemRepository.getElement(id)
         }
     }
 }

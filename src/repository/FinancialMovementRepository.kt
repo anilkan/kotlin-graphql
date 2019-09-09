@@ -35,7 +35,6 @@ object FinancialMovementRepository : Repository<FinancialMovement> {
                 }
                 .first()
         }
-
 }
 
 object FinancialMovementItemRepository : Repository<FinancialMovementItem> {
