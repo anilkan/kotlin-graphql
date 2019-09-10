@@ -32,3 +32,11 @@ query GetMovements($id: Int!) {
  {
    "id" : "1"
  }
+
+mutation CreateFMovement($datetime: DateTime!, $from: Int!, $to: Int!) {
+  createFinancialMovement(datetime: $datetime, from: $from, to: $to)
+},{
+    "datetime": "2019-09-08T21:39:52.329+03:00",
+    "from": 1,
+    "to": 1
+  }

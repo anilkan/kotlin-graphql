@@ -36,7 +36,7 @@ fun Application.route() {
             val response = res.fold(onSuccess = { it }, onFailure = {
                 """
                 {
-                    "errors": ${it.message}
+                    "errors": "${it.message}"
                 }
             """.trimIndent()
             })
