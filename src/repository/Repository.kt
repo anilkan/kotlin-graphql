@@ -1,10 +1,10 @@
 package xyz.anilkan.kotlin.repository
 
 interface Repository<D> {
-    //fun add(element: D): Long
+    fun add(element: D): Int
     //fun getAll(): Sequence<D>
-    //fun remove(indexer: Long): Long
-    //fun replace(indexer: Long, element: D): Long
+    //fun remove(indexer: Int): Int
+    //fun replace(indexer: Int, element: D): Int
     fun getElement(indexer: Int): D
     //fun filter(predicate: SqlExpressionBuilder.() -> Op<Boolean>): Sequence<D>
 }
