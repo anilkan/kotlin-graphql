@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import xyz.anilkan.kotlin.model.Firm
-import xyz.anilkan.kotlin.transactionEnviroment
+import xyz.anilkan.kotlin.util.transactionEnviroment
 
 object Firms : Table() {
     val id: Column<Int> = integer("id").autoIncrement().primaryKey()

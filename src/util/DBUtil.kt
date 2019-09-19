@@ -1,4 +1,4 @@
-package xyz.anilkan.kotlin
+package xyz.anilkan.kotlin.util
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import xyz.anilkan.kotlin.repository.FinancialMovements
 import xyz.anilkan.kotlin.repository.Firms
+import xyz.anilkan.kotlin.repository.Movements
 import xyz.anilkan.kotlin.repository.Safes
 
 fun <T> transactionEnviroment(closure: () -> T): T {
@@ -36,6 +37,8 @@ fun createTables() {
             it[from] = safeId
             it[to] = firmId
         } get FinancialMovements.id
+
+        SchemaUtils.create(Movements)
     }
 }
 

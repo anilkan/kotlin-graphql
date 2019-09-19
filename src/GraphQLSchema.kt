@@ -43,15 +43,17 @@ val schema = KGraphQL.schema {
 
     mutation("createFinancialMovement") {
         resolver { datetime: DateTime, from: Int, to: Int ->
-            FinancialMovementRepository.add(
-                FinancialMovement(
-                    0,
-                    datetime,
-                    SafeRepository.getElement(from),
-                    FirmRepository.getElement(to)
+            FinancialMovementRepository.getElement(
+                FinancialMovementRepository.add(
+                    FinancialMovement(
+                        0,
+                        datetime,
+                        SafeRepository.getElement(from),
+                        FirmRepository.getElement(to)
+                    )
                 )
             )
-        }
+        }.withArgs { }
     }
 
     query("fmovementitem") {

@@ -34,7 +34,16 @@ query GetMovements($id: Int!) {
  }
 
 mutation CreateFMovement($datetime: DateTime!, $from: Int!, $to: Int!) {
-  createFinancialMovement(datetime: $datetime, from: $from, to: $to)
+  createFinancialMovement(datetime: $datetime, from: $from, to: $to){
+    id
+    datetime
+    from {
+      name
+    }
+    to {
+      name
+    }
+  }
 },{
     "datetime": "2019-09-08T21:39:52.329+03:00",
     "from": 1,

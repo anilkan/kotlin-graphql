@@ -2,9 +2,54 @@ package xyz.anilkan.kotlin.repository
 
 import org.jetbrains.exposed.sql.*
 import org.joda.time.DateTime
+import org.postgresql.util.PGobject
+import xyz.anilkan.kotlin.Expense
+import xyz.anilkan.kotlin.Income
+import xyz.anilkan.kotlin.Movement
+import xyz.anilkan.kotlin.MovementType
 import xyz.anilkan.kotlin.model.FinancialMovement
 import xyz.anilkan.kotlin.model.FinancialMovementItem
-import xyz.anilkan.kotlin.transactionEnviroment
+import xyz.anilkan.kotlin.util.transactionEnviroment
+
+class PGEnum<T : Enum<T>>(enumTypeName: String, enumValue: T?) : PGobject() {
+    init {
+        value = enumValue?.name
+        type = enumTypeName
+    }
+}
+
+object Movements : Table() {
+    val id: Column<Int> = integer("id").autoIncrement().primaryKey()
+    val type = customEnumeration(
+        "type",
+        "MovementType",
+        { value -> MovementType.valueOf(value as String) },
+        { PGEnum("MovementType", it) })
+}
+
+fun Movements.toDataObj(row: ResultRow): Movement {
+    return when (row[type]) {
+        MovementType.EXPENSE -> Expense(row[id])
+        MovementType.INCOME -> Income(row[id])
+    }
+}
+
+object MovementRepository : Repository<Movement> {
+    override fun add(element: Movement): Int =
+        transactionEnviroment {
+            Movements.insert {
+                it[type] = element.type
+            } get Movements.id
+        }
+
+    override fun getElement(indexer: Int): Movement =
+        transactionEnviroment {
+            Movements
+                .select { Movements.id eq indexer }
+                .map { x -> Movements.toDataObj(x) }
+                .first()
+        }
+}
 
 object FinancialMovements : Table() {
     val id: Column<Int> = integer("id").autoIncrement().primaryKey()
