@@ -3,11 +3,11 @@ package xyz.anilkan.kotlin
 import com.apurebase.kgraphql.KGraphQL
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.joda.time.DateTime
-import xyz.anilkan.kotlin.model.FinancialMovement
-import xyz.anilkan.kotlin.repository.FinancialMovementItemRepository
-import xyz.anilkan.kotlin.repository.FinancialMovementRepository
+import xyz.anilkan.kotlin.model.MovementType
 import xyz.anilkan.kotlin.repository.FirmRepository
 import xyz.anilkan.kotlin.repository.SafeRepository
+import xyz.anilkan.kotlin.service.AccountingService
+import xyz.anilkan.kotlin.service.addExpense
 
 val schema = KGraphQL.schema {
     configure {
@@ -18,6 +18,10 @@ val schema = KGraphQL.schema {
     stringScalar<DateTime> {
         serialize = { date -> date.toString() }
         deserialize = { dateString -> DateTime(dateString) }
+    }
+
+    enum<MovementType> {
+        description = "Type of movement"
     }
 
     // Safe
@@ -34,31 +38,10 @@ val schema = KGraphQL.schema {
         }
     }
 
-    // Financial Movement
-    query("fmovement") {
-        resolver { id: Int ->
-            FinancialMovementRepository.getElement(id)
-        }
-    }
-
-    mutation("createFinancialMovement") {
-        resolver { datetime: DateTime, from: Int, to: Int ->
-            FinancialMovementRepository.getElement(
-                FinancialMovementRepository.add(
-                    FinancialMovement(
-                        0,
-                        datetime,
-                        SafeRepository.getElement(from),
-                        FirmRepository.getElement(to)
-                    )
-                )
-            )
-        }.withArgs { }
-    }
-
-    query("fmovementitem") {
-        resolver { id: Int ->
-            FinancialMovementItemRepository.getElement(id)
+    // Expense
+    mutation("addExpense") {
+        resolver { from: Int ->
+            AccountingService.addExpense(from)
         }
     }
 }

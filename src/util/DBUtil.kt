@@ -6,9 +6,11 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.joda.time.DateTime
 import org.postgresql.util.PGobject
-import xyz.anilkan.kotlin.repository.*
+import xyz.anilkan.kotlin.repository.Firms
+import xyz.anilkan.kotlin.repository.MovementItems
+import xyz.anilkan.kotlin.repository.Movements
+import xyz.anilkan.kotlin.repository.Safes
 
 fun <T> transactionEnvironment(closure: () -> T): T {
     return transaction { closure() }
@@ -28,13 +30,6 @@ fun createTables() {
         val firmId = Firms.insert {
             it[name] = "Pehlivanoğlu"
         } get Firms.id
-
-        SchemaUtils.create(FinancialMovements)
-        val movementId = FinancialMovements.insert {
-            it[datetime] = DateTime.now()
-            it[from] = safeId
-            it[to] = firmId
-        } get FinancialMovements.id
 
         SchemaUtils.create(Movements)
 

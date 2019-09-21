@@ -25,7 +25,7 @@ enum class MovementType {
 
 open abstract class Movement : BaseModel {
     abstract val type: MovementType
-    abstract val from: Any
+    abstract val from: Int
     val items: List<MovementItem> by lazy {
         transactionEnvironment {
             MovementItemRepository.getElementsByMovementId(
@@ -35,17 +35,17 @@ open abstract class Movement : BaseModel {
     }
 }
 
-data class Expense(override val id: Int, override val from: Safe) : Movement() {
+data class Expense(override val id: Int, override val from: Int) : Movement() {
     override val type: MovementType = MovementType.EXPENSE
 }
 
-data class Income(override val id: Int, override val from: Firm) : Movement() {
+data class Income(override val id: Int, override val from: Int) : Movement() {
     override val type: MovementType = MovementType.INCOME
 }
 
 data class MovementItem(
     override val id: Int,
-    val movement: Movement,
+    val movement: Int,
     val item: String,
     val amount: Float,
     val itemPrice: Float,
