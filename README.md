@@ -49,3 +49,11 @@ mutation CreateFMovement($datetime: DateTime!, $from: Int!, $to: Int!) {
     "from": 1,
     "to": 1
   }
+  
+###### - GraphQL şemasında yer almasını istemediğimiz değişkeni kaldırmak
+`
+    type<Movement> {
+        Movement::type.ignore()
+    }
+`
+https://kgraphql.in/docs/reference/type-system/objects-and-interfaces/

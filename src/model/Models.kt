@@ -3,8 +3,8 @@ package xyz.anilkan.kotlin.model
 import xyz.anilkan.kotlin.repository.MovementItemRepository
 import xyz.anilkan.kotlin.util.transactionEnvironment
 
-interface BaseModel {
-    val id: Int
+open abstract class BaseModel {
+    abstract val id: Int
 }
 
 data class Safe(
@@ -12,18 +12,18 @@ data class Safe(
     val code: String,
     val name: String,
     val balance: Double
-) : BaseModel
+) : BaseModel()
 
 data class Firm(
     override val id: Int,
     val name: String
-) : BaseModel
+) : BaseModel()
 
 enum class MovementType {
     EXPENSE, INCOME
 }
 
-open abstract class Movement : BaseModel {
+open abstract class Movement : BaseModel() {
     abstract val type: MovementType
     abstract val from: Int
     val items: List<MovementItem> by lazy {
@@ -50,4 +50,4 @@ data class MovementItem(
     val amount: Float,
     val itemPrice: Float,
     val itemTotalPrice: Float
-) : BaseModel
+) : BaseModel()
