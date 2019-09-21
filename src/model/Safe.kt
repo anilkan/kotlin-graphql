@@ -23,32 +23,24 @@ enum class MovementType {
     EXPENSE, INCOME
 }
 
-interface Movement : BaseModel {
-    val type: MovementType
-    val from: Any
-    val items: List<MovementItem>
+open abstract class Movement : BaseModel {
+    abstract val type: MovementType
+    abstract val from: Any
+    val items: List<MovementItem> by lazy {
+        transactionEnvironment {
+            MovementItemRepository.getElementsByMovementId(
+                id
+            )
+        }
+    }
 }
 
-data class Expense(override val id: Int, override val from: Safe) : Movement {
+data class Expense(override val id: Int, override val from: Safe) : Movement() {
     override val type: MovementType = MovementType.EXPENSE
-    override val items: List<MovementItem> by lazy {
-        transactionEnvironment {
-            MovementItemRepository.getElementsByMovementId(
-                id
-            )
-        }
-    }
 }
 
-data class Income(override val id: Int, override val from: Firm) : Movement {
+data class Income(override val id: Int, override val from: Firm) : Movement() {
     override val type: MovementType = MovementType.INCOME
-    override val items: List<MovementItem> by lazy {
-        transactionEnvironment {
-            MovementItemRepository.getElementsByMovementId(
-                id
-            )
-        }
-    }
 }
 
 data class MovementItem(
