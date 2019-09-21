@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
 import xyz.anilkan.kotlin.model.Firm
-import xyz.anilkan.kotlin.util.transactionEnviroment
+import xyz.anilkan.kotlin.util.transactionEnvironment
 
 object Firms : Table() {
     val id: Column<Int> = integer("id").autoIncrement().primaryKey()
@@ -18,7 +18,7 @@ object FirmRepository : Repository<Firm> {
     override fun add(element: Firm): Int = 0
 
     override fun getElement(indexer: Int): Firm =
-        transactionEnviroment {
+        transactionEnvironment {
             Firms
                 .select { Firms.id eq indexer }
                 .map { x -> Firms.toDataObj(x) }

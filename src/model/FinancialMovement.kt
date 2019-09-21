@@ -1,7 +1,6 @@
 package xyz.anilkan.kotlin.model
 
 import org.joda.time.DateTime
-import xyz.anilkan.kotlin.Expense
 
 data class FinancialMovement(
     val id: Int,
@@ -14,7 +13,3 @@ data class FinancialMovementItem(
     val id: Int,
     val master: FinancialMovement
 )
-
-fun aaa() {
-    val one = Expense(0)
-}

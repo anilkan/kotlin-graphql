@@ -2,21 +2,9 @@ package xyz.anilkan.kotlin.repository
 
 import org.jetbrains.exposed.sql.*
 import org.joda.time.DateTime
-import org.postgresql.util.PGobject
-import xyz.anilkan.kotlin.Expense
-import xyz.anilkan.kotlin.Income
-import xyz.anilkan.kotlin.Movement
-import xyz.anilkan.kotlin.MovementType
-import xyz.anilkan.kotlin.model.FinancialMovement
-import xyz.anilkan.kotlin.model.FinancialMovementItem
-import xyz.anilkan.kotlin.util.transactionEnviroment
-
-class PGEnum<T : Enum<T>>(enumTypeName: String, enumValue: T?) : PGobject() {
-    init {
-        value = enumValue?.name
-        type = enumTypeName
-    }
-}
+import xyz.anilkan.kotlin.model.*
+import xyz.anilkan.kotlin.util.PGEnum
+import xyz.anilkan.kotlin.util.transactionEnvironment
 
 object Movements : Table() {
     val id: Column<Int> = integer("id").autoIncrement().primaryKey()
@@ -25,29 +13,77 @@ object Movements : Table() {
         "MovementType",
         { value -> MovementType.valueOf(value as String) },
         { PGEnum("MovementType", it) })
+    val from: Column<Int> = integer("from")
 }
 
 fun Movements.toDataObj(row: ResultRow): Movement {
     return when (row[type]) {
-        MovementType.EXPENSE -> Expense(row[id])
-        MovementType.INCOME -> Income(row[id])
+        MovementType.EXPENSE -> Expense(row[id], SafeRepository.getElement(row[from]))
+        MovementType.INCOME -> Income(row[id], FirmRepository.getElement(row[from]))
     }
 }
 
 object MovementRepository : Repository<Movement> {
     override fun add(element: Movement): Int =
-        transactionEnviroment {
+        transactionEnvironment {
             Movements.insert {
                 it[type] = element.type
+                it[from] = (element.from as BaseModel).id
             } get Movements.id
         }
 
     override fun getElement(indexer: Int): Movement =
-        transactionEnviroment {
+        transactionEnvironment {
             Movements
                 .select { Movements.id eq indexer }
                 .map { x -> Movements.toDataObj(x) }
                 .first()
+        }
+}
+
+object MovementItems : Table() {
+    val id: Column<Int> = integer("id").autoIncrement().primaryKey()
+    val movement: Column<Int> = integer("movement_id") references Movements.id
+    val item: Column<String> = varchar("item", 250)
+    val amount: Column<Float> = float("amount")
+    val itemPrice: Column<Float> = float("item_price")
+    val itemTotalPrice: Column<Float> = float("item_total_price")
+}
+
+fun MovementItems.toDataObj(row: ResultRow): MovementItem = MovementItem(
+    row[id],
+    MovementRepository.getElement(row[movement]),
+    row[item],
+    row[amount],
+    row[itemPrice],
+    row[itemTotalPrice]
+)
+
+object MovementItemRepository : Repository<MovementItem> {
+    override fun add(element: MovementItem): Int =
+        transactionEnvironment {
+            MovementItems.insert {
+                it[movement] = element.movement.id
+                it[item] = element.item
+                it[amount] = element.amount
+                it[itemPrice] = element.itemPrice
+                it[itemTotalPrice] = element.itemTotalPrice
+            } get MovementItems.id
+        }
+
+    override fun getElement(indexer: Int): MovementItem =
+        transactionEnvironment {
+            MovementItems
+                .select { MovementItems.id eq indexer }
+                .map { x -> MovementItems.toDataObj(x) }
+                .first()
+        }
+
+    fun getElementsByMovementId(movementId: Int): List<MovementItem> =
+        transactionEnvironment {
+            MovementItems
+                .select { MovementItems.movement eq movementId }
+                .map { x -> MovementItems.toDataObj(x) }
         }
 }
 
@@ -77,7 +113,7 @@ fun FinancialMovementItems.toDataObj(row: ResultRow) = FinancialMovementItem(
 
 object FinancialMovementRepository : Repository<FinancialMovement> {
     override fun add(element: FinancialMovement): Int =
-        transactionEnviroment {
+        transactionEnvironment {
             FinancialMovements.insert {
                 it[datetime] = DateTime(element.datetime)
                 it[from] = element.from.id
@@ -86,7 +122,7 @@ object FinancialMovementRepository : Repository<FinancialMovement> {
         }
 
     override fun getElement(indexer: Int): FinancialMovement =
-        transactionEnviroment {
+        transactionEnvironment {
             FinancialMovements
                 .select { FinancialMovements.id eq indexer }
                 .map { x -> FinancialMovements.toDataObj(x) }
@@ -98,7 +134,7 @@ object FinancialMovementItemRepository : Repository<FinancialMovementItem> {
     override fun add(element: FinancialMovementItem): Int = 0
 
     override fun getElement(indexer: Int): FinancialMovementItem =
-        transactionEnviroment {
+        transactionEnvironment {
             FinancialMovementItems
                 .select { FinancialMovementItems.id eq indexer }
                 .map { x -> FinancialMovementItems.toDataObj(x) }

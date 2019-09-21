@@ -7,18 +7,16 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
-import xyz.anilkan.kotlin.repository.FinancialMovements
-import xyz.anilkan.kotlin.repository.Firms
-import xyz.anilkan.kotlin.repository.Movements
-import xyz.anilkan.kotlin.repository.Safes
+import org.postgresql.util.PGobject
+import xyz.anilkan.kotlin.repository.*
 
-fun <T> transactionEnviroment(closure: () -> T): T {
+fun <T> transactionEnvironment(closure: () -> T): T {
     return transaction { closure() }
 }
 
-// TODO: FlyWay ile db versioning yapılmalı
+// TODO: FlyWay ile db versiyonlama yapılmalı
 fun createTables() {
-    transactionEnviroment {
+    transactionEnvironment {
         SchemaUtils.create(Safes)
         val safeId = Safes.insert {
             it[code] = "K1"
@@ -39,6 +37,8 @@ fun createTables() {
         } get FinancialMovements.id
 
         SchemaUtils.create(Movements)
+
+        SchemaUtils.create(MovementItems)
     }
 }
 
@@ -58,4 +58,11 @@ private fun hikari(): HikariDataSource {
     config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
     config.validate()
     return HikariDataSource(config)
+}
+
+class PGEnum<T : Enum<T>>(enumTypeName: String, enumValue: T?) : PGobject() {
+    init {
+        value = enumValue?.name
+        type = enumTypeName
+    }
 }
